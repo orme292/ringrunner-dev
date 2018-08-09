@@ -1,15 +1,17 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python
 
 '''
 
 Author: Andrew Orme
 https://github.com/orme292/
 
-Uses the NLNOG Ring network to test latency and run commands.
-So, you'll need access to the NLNOG Ring.
+An easier more intuitive way to use NLNOG Ring Network
+(and hopefully much easier than ringattack.py)
 https://ring.nlnog.net/
 
-Requires 3.6 because I love f strings
+Requires 3.6 because I love f strings.
+It'll just all-out fail on anything less than Pyhon 3.6 because the f strings
+are syntax errors. 
 
 '''
 
@@ -35,6 +37,7 @@ ARG_LEVEL = 0
 INITIAL_CMD_LIST = "list"
 INITIAL_CMD_RUN = "run"
 INITIAL_CMD_DOMAIN = "domain"
+INITIAL_CMD_HELP = "help"
 
 def quitMessage(erString, exitCode=2):
     print(f"FATAL: {erString}")
@@ -46,14 +49,14 @@ def debugMessage(erString, doExit=False, exitCode=2):
         if doExit: sys.exit(exitCode)
         
 def increaseLevel(byAmount=1):
-    level = ARG_LEVEL + byAmount
-    debugMessage(f"ARG_LEVEL changed: {ARG_LEVEL} to {level}.")
-    return level
+    global ARG_LEVEL
+    ARG_LEVEL = ARG_LEVEL + byAmount
+    debugMessage(f"ARG_LEVEL changed: {ARG_LEVEL}.")
     
 def decreaseLevel(byAmount=1):
-    level = ARG_LEVEL - byAmount
-    debugMessage(f"ARG_LEVEL changed: {ARG_LEVEL} to {level}.")
-    return level
+    global ARG_LEVEL
+    ARG_LEVEL = ARG_LEVEL - byAmount
+    debugMessage(f"ARG_LEVEL changed {ARG_LEVEL}.")
         
 def validateInitial(initial):
     initial = initial.strip().lower()
