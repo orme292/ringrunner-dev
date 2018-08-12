@@ -15,30 +15,6 @@ are syntax errors.
 
 '''
 
-import sys, json, subprocess, requests, random, urllib
-
-try:
-    import argparse
-    from terminaltables import SingleTable
-except:
-    print("Ringrunner Error: One or more of the following packages is missing: ")
-    print("argparse, terminaltables")
-    sys.exit(1)
-
-SCRIPT_VERSION = "0.1"
-SCRIPT_MAX_DEFAULT = 3
-SCRIPT_API_BASE = "https://api.ring.nlnog.net/1.0"
-SCRIPT_SSH_OPTIONS = "-oStrictHostKeyChecking=no"
-SCRIPT_DEBUG = True
-
-INITIAL = 0
-ARG_LEVEL = 0
-
-INITIAL_CMD_LIST = "list"
-INITIAL_CMD_RUN = "run"
-INITIAL_CMD_DOMAIN = "domain"
-INITIAL_CMD_HELP = "help"
-
 def quitMessage(erString, exitCode=2):
     print(f"FATAL: {erString}")
     sys.exit(exitCode)
@@ -60,7 +36,7 @@ def decreaseLevel(byAmount=1):
         
 def validateInitial(initial):
     initial = initial.strip().lower()
-    while initial not in [INITIAL_CMD_LIST, INITIAL_CMD_RUN, INITIAL_CMD_DOMAIN, INTIAL_CMD_HELP]:
+    while initial not in [INITIAL_CMD_LIST, INITIAL_CMD_RUN, INITIAL_CMD_DOMAIN, INITIAL_CMD_HELP]:
         debugMessage(f"initial {initial} is not checked in validateInitial({initial}), validating IP instead.")
         if validateIP(initial):
             increaseLevel()
@@ -98,4 +74,6 @@ if __name__ == '__main__':
     parser.add_argument("--debug", action="store_true", help="Force Ringrunner into debug mode.")
     args = parser.parse_args()
     
-    if validateInitial(args.initial[INITIAL]): doIt()
+    if validateInitial(args.initial[INITIAL]):
+        api_object = RingCall()
+        print(api_object.build_api_url(action='get_country_codes'))

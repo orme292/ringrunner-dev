@@ -56,8 +56,8 @@ class RingCall():
         self.api_participants = "/participants"
         self.api_participant_nodes_by_id = "/participants/[id]/nodes/active"
         
-    def create_api_url(self, **kwargs):
-        # develop and return the API URL
+    def build_api_url(self, **kwargs):
+        # build and return the API URL
         
         if kwargs['action'] == 'get_country_codes':
             url = self.api_base + self.api_country_codes
@@ -85,3 +85,5 @@ class RingCall():
             
         else:
             sys.exit(1)
+            
+        return url
