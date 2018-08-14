@@ -1,0 +1,3 @@
+SCRIPT_MAX_DEFAULT: 3
+SCRIPT_SSH_OPTIONS: oStrictHostKeyChecking=no
+SCRIPT_DEBUG: True

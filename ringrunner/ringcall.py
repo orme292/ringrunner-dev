@@ -56,34 +56,34 @@ class RingCall():
         self.api_participants = "/participants"
         self.api_participant_nodes_by_id = "/participants/[id]/nodes/active"
         
-    def build_api_url(self, **kwargs):
+    def build_api_url(self, action, **kwargs):
         # build and return the API URL
         
-        if kwargs['action'] == 'get_country_codes':
+        if action == 'get_country_codes':
             url = self.api_base + self.api_country_codes
         
-        elif kwargs['action'] == 'get_all_nodes':
+        elif action == 'get_all_nodes':
             url = self.api_base + self.api_nodes
         
-        elif kwargs['action'] == 'get_node_by_id':
+        elif action == 'get_node_by_id':
             url = self.api_base + self.api_node_by_id
             url = url.replace("[id]", kwargs['id'])
             
-        elif kwargs['action'] == 'get_active_nodes':
+        elif action == 'get_active_nodes':
             url = self.api_base + self.api_nodes_if_active
             
-        elif kwargs['action'] == 'get_active_nodes_by_country':
+        elif action == 'get_active_nodes_by_country':
             url = self.api_base + self.api_nodes_if_active_by_country
             url = url.replace("[countrycode]", kwargs['countrycode'])
             
-        elif kwargs['action'] == 'get_participants':
+        elif action == 'get_participants':
             url = self.api_base + self.api_participants
 
-        elif kwargs['action'] == 'get_participants_nodes_by_id':
+        elif action == 'get_participants_nodes_by_id':
             url = self.api_base + self.api_participant_nodes_by_id
             url = url.replace("[id]", kwargs['id'])
             
         else:
-            sys.exit(1)
+            if not url: sys.exit(1)
             
         return url
