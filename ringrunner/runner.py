@@ -1,18 +1,3 @@
-'''
-
-Author: Andrew Orme
-https://github.com/orme292/
-
-An easier more intuitive way to use NLNOG Ring Network
-(and hopefully much easier than ringattack.py)
-https://ring.nlnog.net/
-
-Requires 3.6 because I love f strings.
-It'll just all-out fail on anything less than Pyhon 3.6 because the f strings
-are syntax errors. 
-
-'''
-
 def quitMessage(erString, exitCode=2):
     print(f"FATAL: {erString}")
     sys.exit(exitCode)
