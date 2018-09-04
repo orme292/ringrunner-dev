@@ -70,8 +70,16 @@ class RingCall():
     
     def validateCountryCode(self, code):
         
-        # could we use https://api.ring.nlnog.net/1.0/nodes/active/country/[countrycode] to validate?
+        code = code.upper()
+        
+        if len(code) != 2:
+            quitMessage("Country Code should be at least two letters. See {api}{country}".format(api=self.api_base, country=self.api_country_codes))
+            
         api_url = self.build_api_url(self.config.RING_GET_COUNTRY_CODES)
         data = self.do_api_call(api_url)
-        print (api_url)
-        print (data)
+        
+        for country in data['results']['countrycodes']:
+            if country == code: 
+                return True
+        
+        return False

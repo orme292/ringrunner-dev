@@ -64,12 +64,21 @@ class RunObject():
         
     def _primaryActionRun(self):
         
-       self._increaseLevel()
-       if (self.args[self.level] == self.config.ACTION_COMMAND and 
-           self.args[self.level+2] == self.config.JOINER_FROM and
-           len(self.args[self.level+3]) == 2):
-               self.ring.validateCountryCode(self.args[self.level+3])
-       
+        self._increaseLevel()
+        
+        # 0   1      2              3    4
+        # run comand "command here" from CC
+        #     level
+        if (
+           self.args[self.level] == self.config.ACTION_COMMAND 
+           and self.args[self.level+2] == self.config.JOINER_FROM 
+        ):
+            if self.ring.validateCountryCode(self.args[self.level+3]):
+                quitMessage("Country validated")
+            else:
+                quitMessage("No matching country in the network")
+            
+        print(self.args[self.level+3])       
     
     def _primaryActionDomain(self):
         

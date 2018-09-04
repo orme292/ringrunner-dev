@@ -29,3 +29,5 @@ class Config():
         self.RING_GET_ACTIVE_NODES_BY_COUNTRY = "get_active_nodes_by_country"
         self.RING_GET_PARTICIPANTS = "get_participants"
         self.RING_GET_PARTICIPANTS_NODES_BY_ID = "get_participants_nodes_by_id"
+        
+# maybe split this into ringconfig for API urls and ACTION vars (so it's separate from the main config)
