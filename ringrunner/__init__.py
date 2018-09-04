@@ -23,23 +23,21 @@ An easier more intuitive way to use NLNOG Ring Network
 (and hopefully much easier than ringattack.py)
 https://ring.nlnog.net/
 
-Requires 3.6 because I love f strings.
-It'll just all-out fail on anything less than Pyhon 3.6 because the f strings
-are syntax errors. 
-
 '''
 
-from .ringcall import RingCall
-from .runner import *
+from .runner import RunObject
       
 def main():
-    
-    INITIAL = 0
-    ARG_LEVEL = 0
     
     parser = argparse.ArgumentParser(description="Use the NLNOG Ring Network to nest network latency from multiple points.")
     parser.add_argument("initial", type=str, nargs="+", help="The intial IP address or initial command to pass to ringrunner.")
     parser.add_argument("--debug", action="store_true", help="Force Ringrunner into debug mode.")
+    parser.add_argument("--showhelp", action="store_true", help="Tell me what Ringrunner can do and how to do it.")
     args = parser.parse_args()
     
-    print(args)
+    cli = RunObject()
+    cli.level = 0
+    cli.showhelp = args.showhelp
+    cli.setDebugMode(args.debug)
+    cli.args = args.initial
+    cli.startActionPath()
