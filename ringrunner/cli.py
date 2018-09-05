@@ -1,10 +1,10 @@
 import sys
 
 from .ringcall import RingCall
-from .configuration import Config
+from .configuration import CLIConfig
 from .helpers import *
 
-class RunObject():
+class CLIObject():
     
     
     def __init__(self):
@@ -13,7 +13,7 @@ class RunObject():
         self.args = []
         self.debug = False
         self.showhelp = False
-        self.config = Config()
+        self.config = CLIConfig()
         self.ring = RingCall()
         
     
@@ -45,16 +45,6 @@ class RunObject():
     def _prepArgs(self):
         
         self.args = [arg.strip().lower() for arg in self.args]
-    
-        
-    def _increaseLevel(self):
-        
-        self.level += 1
-        
-        
-    def _decreaseLevel(self):
-        
-        self.level -= 1
         
                    
     def _primaryActionList(self):
@@ -64,7 +54,7 @@ class RunObject():
         
     def _primaryActionRun(self):
         
-        self._increaseLevel()
+        self.level =+ 1
         
         # 0   1      2              3    4
         # run comand "command here" from CC
@@ -73,20 +63,21 @@ class RunObject():
            self.args[self.level] == self.config.ACTION_COMMAND 
            and self.args[self.level+2] == self.config.JOINER_FROM 
         ):
-            if self.ring.validateCountryCode(self.args[self.level+3]):
-                quitMessage("Country validated")
-            else:
-                quitMessage("No matching country in the network")
+            if not self.ring.validateCountryCode(self.args[self.level+3]):
+                debugMessage("code provided {cc}".format(cc=(self.level+3)))
+                quitMessage("There are no active/inactive nodes in that country or the country is invalid.")
             
-        print(self.args[self.level+3])       
+            self._runCommand()     
     
     def _primaryActionDomain(self):
         
+        self.level += 1
         print("primaryActionDomain")
         
     
     def _primaryActionIP(self):
         
+        self.level += 1
         print("IP address")
         
         
@@ -96,6 +87,7 @@ class RunObject():
         if len(octets) > 4 or (len(octets) < 4):
             debugMessage("initial '{ipaddress}', octets '{octets}'".format(ipaddress=ipaddress, octets=octets), self.debug)
             quitMessage("Expecting IP Address -- there should be 4 octets separated by '.' i.e 8.8.8.8")
+        
         for octet in octets:
             try:
                 octet = int(octet)
@@ -105,4 +97,9 @@ class RunObject():
             if octet > 255:
                 debugMessage("initial '{ipaddress}, octet '{octet}'".format(ipaddress=ipaddress, octet=octet), self.debug)
                 quitMessage("IP Address is out of range: {octet} > 255".format(octet=octet))
-        return True    
+        
+        return True  
+        
+    def _runCommands(self, nodes):
+        
+        

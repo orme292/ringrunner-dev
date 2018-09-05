@@ -12,6 +12,7 @@ try:
     from terminaltables import SingleTable
 except ImportError:
     print("Required modules aren't available -- requests or terminaltables")
+    print("Try installing them with `pip3 install requests` and `pip3 install terminaltables`")
     sys.exit(1)
     
 '''
@@ -25,7 +26,7 @@ https://ring.nlnog.net/
 
 '''
 
-from .runner import RunObject
+from .cli import CLIObject
       
 def main():
     
@@ -35,8 +36,7 @@ def main():
     parser.add_argument("--showhelp", action="store_true", help="Tell me what Ringrunner can do and how to do it.")
     args = parser.parse_args()
     
-    cli = RunObject()
-    cli.level = 0
+    cli = CLIObject()
     cli.showhelp = args.showhelp
     cli.setDebugMode(args.debug)
     cli.args = args.initial

@@ -30,6 +30,8 @@ This will run an MTR (100 packets) from nodes with the IDs 451, 161, 005, 231, a
 This will list all active nodes
 > ringrunner.py list
 > ringrunner.py list all
+> ringrunner.py list active
+> ringrunner.py list inactive
 
 This will list all active nodes in the US
 > ringrunner.py list US

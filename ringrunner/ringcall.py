@@ -2,7 +2,7 @@ import urllib
 import requests
 import json
 
-from .configuration import Config
+from .configuration import RingConfig
 from .helpers import *
 
 class RingCall():
@@ -10,47 +10,41 @@ class RingCall():
     
     def __init__(self):
         
-        self.api_base = "https://api.ring.nlnog.net/1.0"
-        self.api_country_codes = "/countries"
-        self.api_nodes = "/nodes"
-        self.api_node_by_id = "/nodes/[id]"
-        self.api_nodes_if_active = "/nodes/active"
-        self.api_nodes_if_active_by_country = "/nodes/active/country/[countrycode]"
-        self.api_participants = "/participants"
-        self.api_participant_nodes_by_id = "/participants/[id]/nodes/active"
-        self.config = Config()
+        self.config = RingConfig()
         self.debug = False
         
-        
+
     def build_api_url(self, action, **kwargs):
         # build and return the API URL
         
         if action == self.config.RING_GET_COUNTRY_CODES:
-            url = self.api_base + self.api_country_codes
+            url = self.config.api_base + self.config.api_country_codes
         
         elif action == self.config.RING_GET_ALL_NODES:
-            url = self.api_base + self.api_nodes
+            url = self.config.api_base + self.config.api_nodes
         
         elif action == self.config.RING_GET_NODE_BY_ID:
-            url = self.api_base + self.api_node_by_id
+            url = self.config.api_base + self.config.api_node_by_id
             url = url.replace("[id]", kwargs['id'])
             
         elif action == self.config.RING_GET_ACTIVE_NODES:
-            url = self.api_base + self.api_nodes_if_active
+            url = self.config.api_base + self.config.api_nodes_if_active
             
         elif action == self.config.RING_GET_ACTIVE_NODES_BY_COUNTRY:
-            url = self.api_base + self.api_nodes_if_active_by_country
+            url = self.config.api_base + self.config.api_nodes_if_active_by_country
             url = url.replace("[countrycode]", kwargs['countrycode'])
             
         elif action == self.config.RING_GET_PARTICIPANTS:
-            url = self.api_base + self.api_participants
+            url = self.config.api_base + self.api_participants
 
         elif action == self.config.RING_GET_PARTICIPANTS_NODES_BY_ID:
-            url = self.api_base + self.api_participant_nodes_by_id
+            url = self.config.api_base + self.config.api_participant_nodes_by_id
             url = url.replace("[id]", kwargs['id'])
             
         else:
-            if not url: sys.exit(1)
+            if not url:
+                debugMessage("Could not determine API call for {action}".format(action=action), self.debug)
+                quitMessage("Couldn't generate API call.")
             
         return url
         
