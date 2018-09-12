@@ -9,12 +9,12 @@ class CLIObject():
     
     def __init__(self):
         
-        self.level = 0
         self.args = []
         self.debug = False
         self.showhelp = False
         self.config = CLIConfig()
         self.ring = RingCall()
+        self.max = self.config.SCRIPT_MAX_DEFAULT
         
     
     def setDebugMode(self, value):
@@ -26,20 +26,19 @@ class CLIObject():
     def startActionPath(self):
         
         self._prepArgs()
-        if self.level == 0:
             
-            if self.args[self.level] == self.config.ACTION_LIST: 
-                self._primaryActionList()
+        if self.args[0] == self.config.ACTION_LIST: 
+            self._primaryActionList()
                 
-            elif self.args[self.level] == self.config.ACTION_RUN: 
-                self._primaryActionRun()
+        elif self.args[0] == self.config.ACTION_RUN: 
+            self._primaryActionRun()
                 
-            elif self.args[self.level] == self.config.ACTION_DOMAIN: 
-                self._primaryActionDomain()
+        elif self.args[0] == self.config.ACTION_DOMAIN: 
+            self._primaryActionDomain()
                 
-            else: 
-                if self._validateIP(self.args[self.level]): 
-                    self._primaryActionIP()
+        else: 
+            if self._validateIP(self.args[0]): 
+                self._primaryActionIP()
                     
     
     def _prepArgs(self):
@@ -53,31 +52,38 @@ class CLIObject():
         
         
     def _primaryActionRun(self):
-        
-        self.level =+ 1
-        
-        # 0   1      2              3    4
-        # run comand "command here" from CC
-        #     level
-        if (
-           self.args[self.level] == self.config.ACTION_COMMAND 
-           and self.args[self.level+2] == self.config.JOINER_FROM 
-        ):
-            if not self.ring.validateCountryCode(self.args[self.level+3]):
-                debugMessage("code provided {cc}".format(cc=(self.level+3)))
-                quitMessage("There are no active/inactive nodes in that country or the country is invalid.")
+        try:
+
+            if (
+               self.args[1] == self.config.ACTION_COMMAND 
+               and self.args[3] == self.config.JOINER_FROM 
+            ):
             
-            self._runCommand()     
+                # validateCountryCode will handle errors.
+                self.ring.validateCountryCode(self.args[4])
+                
+                # If a max is specified, then set the script default.
+                if self.args[5] == self.config.ACTION_MAX:
+                    try:
+                        int(self.args[6])
+                        self.max = self.args[6]
+                    except (ValueError):
+                        debugMessage("max value from level is {max}".format(max=self.args[6]), self.debug)
+                        quitMessage("'max' must be followed by a number")
+            
+                self._runCommand([451,251,162])     
+    
+        except (IndexError):
+            debugMessage("IndexError. {arg}".format(arg=self.args), self.debug)
+            quitMessage("Expected additional commands. Try --showhelp")
     
     def _primaryActionDomain(self):
         
-        self.level += 1
         print("primaryActionDomain")
         
     
     def _primaryActionIP(self):
         
-        self.level += 1
         print("IP address")
         
         
@@ -100,6 +106,8 @@ class CLIObject():
         
         return True  
         
-    def _runCommands(self, nodes):
         
+    def _runCommand(self, nodes):
+        
+        print("runCommand")
         

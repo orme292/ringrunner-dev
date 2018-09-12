@@ -48,6 +48,8 @@ This will list all active nodes with 'equinix' in any field
 
 This will run the command "dig mx google.com" on 3 random nodes from SG
 > ringrunner.py run command "dig mx google.com" from SG
+> ringrunner.py run command "dig mx google.com" from nodes "451, 515, 526, 216"
+> ringrunner.py run command "dig mx google.com" from SG max 5
 
 This will run the command "dig txt apple.com" from a node on each country
 > ringrunner.py run command "dig txt apple.com" from countries

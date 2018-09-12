@@ -21,10 +21,8 @@ class CLIConfig():
         self.ACTION_COMMAND = "command"
         self.ACTION_COUNTRIES = "countries"
         self.ACTION_DOMAIN = "domain"
+  
         
-
-        
-# maybe split this into ringconfig for API urls and ACTION vars (so it's separate from the main config)
 
 class RingConfig():
     

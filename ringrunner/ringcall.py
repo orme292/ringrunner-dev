@@ -67,7 +67,7 @@ class RingCall():
         code = code.upper()
         
         if len(code) != 2:
-            quitMessage("Country Code should be at least two letters. See {api}{country}".format(api=self.api_base, country=self.api_country_codes))
+            quitMessage("Country Code should be two letters. See {api}{country}".format(api=self.config.api_base, country=self.config.api_country_codes))
             
         api_url = self.build_api_url(self.config.RING_GET_COUNTRY_CODES)
         data = self.do_api_call(api_url)
@@ -76,4 +76,5 @@ class RingCall():
             if country == code: 
                 return True
         
-        return False
+        print("{code} is not a valid country code. See: {url}".format(code=code, url=self.build_api_url(self.config.RING_GET_COUNTRY_CODES)))
+        sys.exit(1)
