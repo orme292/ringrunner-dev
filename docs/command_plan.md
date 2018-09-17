@@ -4,12 +4,15 @@ This is a list of commands that the project will be based around
 
 This will run an MTR (10 packets) from 3 random nodes
 > ringrunner.py 1.2.3.4 run mtr
+>> ringrunner.py run mtr to 1.2.3.4 
 
 This will run a high count ping (100 packets) from 3 random nodes
 > ringrunner.py 1.2.3.4 run high ping
+>> ringrunner.py run high ping to 1.2.3.4
 
 This will run an MTR (10 packets) from 4 random nodes in the US
 > ringrunner.py 1.2.3.4 run mtr from US max 4
+>> ringrunner.py run mtr to 1.2.3.4 from US max 5
 
 This will run a high count MTR (100 packets) from 3 random nodes in the US
 > ringrunner.py 1.2.3.4 run high mtr from JP

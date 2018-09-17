@@ -14,7 +14,7 @@ except ImportError:
     print("Required modules aren't available -- requests or terminaltables")
     print("Try installing them with `pip3 install requests` and `pip3 install terminaltables`")
     sys.exit(1)
-    
+
 '''
 
 Author: Andrew Orme
@@ -27,15 +27,15 @@ https://ring.nlnog.net/
 '''
 
 from .cli import CLIObject
-      
+
 def main():
-    
+
     parser = argparse.ArgumentParser(description="Use the NLNOG Ring Network to nest network latency from multiple points.")
     parser.add_argument("initial", type=str, nargs="+", help="The intial IP address or initial command to pass to ringrunner.")
     parser.add_argument("--debug", action="store_true", help="Force Ringrunner into debug mode.")
     parser.add_argument("--showhelp", action="store_true", help="Tell me what Ringrunner can do and how to do it.")
     args = parser.parse_args()
-    
+
     cli = CLIObject()
     cli.showhelp = args.showhelp
     cli.setDebugMode(args.debug)

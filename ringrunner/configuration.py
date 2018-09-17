@@ -1,12 +1,12 @@
 class CLIConfig():
-    
-    
+
+
     def __init__(self):
-        
+
         self.SCRIPT_MAX_DEFAULT = 3
         self.SCRIPT_SSH_OPTIONS = "oStrictHostKeyChecking=no"
         self.SCRIPT_DEBUG = True
-        
+
         self.ACTION_RUN = "run"
         self.ACTION_LIST = "list"
         self.ACTION_MTR = "mtr"
@@ -21,14 +21,14 @@ class CLIConfig():
         self.ACTION_COMMAND = "command"
         self.ACTION_COUNTRIES = "countries"
         self.ACTION_DOMAIN = "domain"
-  
-        
+
+
 
 class RingConfig():
-    
-    
+
+
     def __init__(self):
-        
+
         self.api_base = "https://api.ring.nlnog.net/1.0"
         self.api_country_codes = "/countries"
         self.api_nodes = "/nodes"
@@ -37,7 +37,7 @@ class RingConfig():
         self.api_nodes_if_active_by_country = "/nodes/active/country/[countrycode]"
         self.api_participants = "/participants"
         self.api_participant_nodes_by_id = "/participants/[id]/nodes/active"
-        
+
         self.RING_GET_COUNTRY_CODES = "get_country_codes"
         self.RING_GET_ALL_NODES = "get_all_nodes"
         self.RING_GET_NODE_BY_ID = "get_node_by_id"
