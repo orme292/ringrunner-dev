@@ -1,5 +1,6 @@
 import sys
 
+from terminaltables import SingleTable
 from .ringcall import RingCall
 from .validator import CLIValidate
 from .configuration import CLIConfig
@@ -11,7 +12,6 @@ class CLIObject():
     def __init__(self):
 
         self.args = []
-        self.debug = False
         self.showhelp = False
         self.config = CLIConfig()
         self.ring = RingCall()
@@ -22,6 +22,7 @@ class CLIObject():
     def setDebugMode(self, value):
 
         self.debug = value
+        self.debug = self.config.SCRIPT_DEBUG
         self.ring.debug = value
         self.validate.debug = value
 
@@ -47,6 +48,7 @@ class CLIObject():
     def _prepArgs(self):
 
         self.args = [arg.strip().lower() for arg in self.args]
+        print(self.args)
 
 
     def _primaryActionList(self):
@@ -56,33 +58,51 @@ class CLIObject():
 
     def _primaryActionRun(self):
 
+        # > ringrunner.py run command "dig mx google.com"
+        # > ringrunner.py run command "dig mx google.com" from SG
+        # > ringrunner.py run command "dig mx google.com" from nodes "451, 515, 526, 216"
+        # > ringrunner.py run command "dig mx google.com" from SG max 5
+        # > ringrunner.py run command "dig txt apple.com" from countries
+
         self.validate.args = self.args
-        self.validate.validatePrimaryRun()
+        result = self.validate.validatePrimaryRun()
 
-        try:
+        print(result)
+        if result == False:
+            debugMessage("Validation Failed", self.debug)
+            quitMessage("Validation Failed")
 
-            if (
-               self.args[1] == self.config.ACTION_COMMAND
-               and self.args[3] == self.config.JOINER_FROM
-            ):
+        if not (self.args[0] == self.config.ACTION_COMMAND) and not (self.args[1] == self.config.ACTION_RUN):
+            debugMessage("because there is no 'run command' command", self.debug)
+            quitMessage("Invalid commands")
 
-                # validateCountryCode will handle errors.
-                self.ring.validateCountryCode(self.args[4])
+        if (len(self.args) == 3):
+            # run command from random servers
+            debugMessage("We're running commands from random servers", self.debug)
 
-                # If a max is specified, then set the script default.
-                if self.args[5] == self.config.ACTION_MAX:
-                    try:
-                        int(self.args[6])
-                        self.max = self.args[6]
-                    except (ValueError):
-                        debugMessage("max value from level is {max}".format(max=self.args[6]), self.debug)
-                        quitMessage("'max' must be followed by a number")
+        if (len(self.args) == 5) and (self.args[3] == self.config.JOINER_FROM) and (self.args[4] == self.config.ACTION_COUNTRIES):
+            # run command from all the countries
+            debugMessage("We're running commands from 1 node in each of the countries", self.debug)
 
-                self._runCommand([451,251,162])
+        if (len(self.args) == 5) and (len(self.args[4]) == 2):
+            # run command from self.config.SCRIPT_MAX_DEFAULT nodes in country
+            debugMessage("We're running commands from a specified country on 3 (Default #) nodes", self.debug)
+            debugMessage("The country is {country}".format(country=self.args[4]), self.debug)
+            validation = self.ring.validateCountryCode(self.args[4])
+            if validation: debugMessage("The country {country} was validated with the API".format(country=self.args[4]), self.debug)
+            elif not validation: debugMessage("The country {country} did not pass validation".format(country=self.args[4]), self.debug)
 
-        except (IndexError):
-            debugMessage("IndexError. {arg}".format(arg=self.args), self.debug)
-            quitMessage("Expected additional commands. Try --showhelp")
+        if (len(self.args) == 7) and (len(self.args[4]) == 2) and (self.args[5] == self.config.ACTION_MAX):
+            # run commands from specified countries from a specified number of nodes
+            debugMessage("We're running commands from a specified country on a specified number of nodes", self.debug)
+
+        if (len(self.args) == 6 and (self.args[4] == self.config.ACTION_NODES)):
+            # run command from the specified nodes
+            debugMessage("We're running commands from the specified nodes", self.debug)
+
+        debugMessage("End", self.debug)
+        exit()
+
 
     def _primaryActionDomain(self):
 
@@ -92,26 +112,6 @@ class CLIObject():
     def _primaryActionIP(self):
 
         print("IP address")
-
-
-    def _validateIP(self, ipaddress):
-
-        octets = ipaddress.split('.')
-        if len(octets) > 4 or (len(octets) < 4):
-            debugMessage("initial '{ipaddress}', octets '{octets}'".format(ipaddress=ipaddress, octets=octets), self.debug)
-            quitMessage("Expecting IP Address -- there should be 4 octets separated by '.' i.e 8.8.8.8")
-
-        for octet in octets:
-            try:
-                octet = int(octet)
-            except (ValueError, TypeError):
-                debugMessage("initial '{ipaddress}, octet '{octet}'".format(ipaddress=ipaddress, octet=octet), self.debug)
-                quitMessage("Expecting numeric IP address i.e. 8.8.8.8")
-            if octet > 255:
-                debugMessage("initial '{ipaddress}, octet '{octet}'".format(ipaddress=ipaddress, octet=octet), self.debug)
-                quitMessage("IP Address is out of range: {octet} > 255".format(octet=octet))
-
-        return True
 
 
     def _runCommand(self, nodes):
