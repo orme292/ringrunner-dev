@@ -47,9 +47,12 @@ class CLIValidate():
         # > ringrunner.py run command "dig txt apple.com" from countries
 
         '''
-        1. To avoid IndexError, use len(self.args) to check for the number of args.
-        2. If no more args are needed, return true, but don't fail -- just proceed
-        3.
+        To avoid IndexError or KeyError  I use len(self.args)
+        to check for the number of args and then validate from there instead
+        of using Try: Except: blocks -- The downside is
+        that it sends up not being very readable and just seems cryptic.
+        The code assumes that the validation will succeed / pass and only
+        Fail conditions are dealt with.
         '''
         # if there is at least 1 command and it is run, then pass. Else, fail.
         if len(self.args) >= 1:

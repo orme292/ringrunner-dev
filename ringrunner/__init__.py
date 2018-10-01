@@ -33,6 +33,7 @@ def main():
     parser = argparse.ArgumentParser(description="Use the NLNOG Ring Network to nest network latency from multiple points.")
     parser.add_argument("initial", type=str, nargs="+", help="The intial IP address or initial command to pass to ringrunner.")
     parser.add_argument("--debug", action="store_true", help="Force Ringrunner into debug mode.")
+    parser.add_argument("--json", action="store_true", help="Display results as raw JSON data when possible. No formatting when possible.")
     parser.add_argument("--showhelp", action="store_true", help="Tell me what Ringrunner can do and how to do it.")
     args = parser.parse_args()
 
