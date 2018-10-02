@@ -81,20 +81,49 @@ class RingCall():
 
             return data_by_field
 
+    # provide you're own JSON
+    def get_node_by_id(self, **kwargs):
 
-    def return_random_nodes(self, num=0, **kwargs):
+        id = kwargs.get('id')
+        field = kwargs.get('field')
+        json = kwargs.get('json')
+
+        debugMessage("{id} {field} json?{jsonyes}".format(id=id, field=field, jsonyes=type(json)), self.debug)
+
+        if not id:
+            return False
+
+        if id and not field:
+            api_url = self.build_api_url(self.config.RING_GET_NODE_BY_ID,id=id)
+            data = self.do_api_call(api_url)
+            return data
+
+        if id and field:
+            if not json:
+                api_url = self.build_api_url(self.config.RING_GET_NODE_BY_ID,id=id)
+                data = self.do_api_call(api_url)
+            else: data = json
+            if (data['info']['resultcount'] == 1) and (data['info']['success'] == 1):
+                for struct in data['results']['nodes']:
+                    field_data = struct[field]
+                    return field_data
+            else: return False
+
+
+    def return_random_nodes(self, num=-1, **kwargs):
         # hit the api and ask for random servers. kwargs[country] will be the country code
         #countrycode = kwargs.get('countrycode')
-        if not num:
+        if num == -1:
             num = self.config.SCRIPT_MAX_DEFAULT
 
         all_nodes = self._get_all_active_nodes(field='id')
-        nodes = []
+        chosen_nodes = []
         print(num)
         for count in range(num):
             item = random.randint(0, (len(all_nodes)-1))
-            nodes.append(item)
-            print(count, str(item)
+            chosen_nodes.append(all_nodes[item])
+
+        return chosen_nodes
         #for node in nodes:
         #    print("node", node)
 

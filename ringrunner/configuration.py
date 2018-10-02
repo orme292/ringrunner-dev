@@ -4,7 +4,7 @@ class CLIConfig():
     def __init__(self):
 
         self.SCRIPT_MAX_DEFAULT = 3
-        self.SCRIPT_SSH_OPTIONS = "oStrictHostKeyChecking=no"
+        self.SCRIPT_SSH_OPTIONS = "-oStrictHostKeyChecking=no"
         self.SCRIPT_DEBUG = True
 
         self.ACTION_RUN = "run"
@@ -21,7 +21,6 @@ class CLIConfig():
         self.ACTION_COMMAND = "command"
         self.ACTION_COUNTRIES = "countries"
         self.ACTION_DOMAIN = "domain"
-
 
 
 class RingConfig():

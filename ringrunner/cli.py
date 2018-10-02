@@ -4,6 +4,7 @@ from terminaltables import SingleTable
 from .ringcall import RingCall
 from .validator import CLIValidate
 from .configuration import CLIConfig
+from .shellexec import ShellEX
 from .helpers import *
 
 class CLIObject():
@@ -16,15 +17,23 @@ class CLIObject():
         self.config = CLIConfig()
         self.ring = RingCall()
         self.validate = CLIValidate()
+        self.shell = ShellEX()
         self.max = self.config.SCRIPT_MAX_DEFAULT
 
 
     def setDebugMode(self, value):
 
-        self.debug = value
-        self.debug = self.config.SCRIPT_DEBUG
-        self.ring.debug = value
-        self.validate.debug = value
+        if value != self.config.SCRIPT_DEBUG:
+            self.debug = self.config.SCRIPT_DEBUG
+            self.ring.debug = self.config.SCRIPT_DEBUG
+            self.validate.debug = self.config.SCRIPT_DEBUG
+            self.shell.debug = self.config.SCRIPT_DEBUG
+
+        else:
+            self.debug = value
+            self.ring.debug = value
+            self.validate.debug = value
+            self.shell.debug = value
 
 
     def startActionPath(self):
@@ -66,19 +75,21 @@ class CLIObject():
         self.validate.args = self.args
         commands_validated = self.validate.validatePrimaryRun()
 
-        print(commands_validated)
         if not commands_validated:
-            quitMessage("Invalid Command")
+            quitMessage("Invalid Command.")
 
-        if not (self.args[0] == self.config.ACTION_RUN) or not (self.args[1] == self.config.ACTION_COMMAND):
-            #return_random_nodes
-            quitMessage("what is it that you want?")
-
-        if (len(self.args) == 3):
+        # argument length = 3
+        # 1st argument: run
+        # 2nd argument: command
+        # 3rd argument: is assumed to be a command in quotes
+        if (len(self.args) == 3) and (self.args[0] == self.config.ACTION_RUN) and (self.args[1] == self.config.ACTION_COMMAND):
             # run command from random servers
             debugMessage("We're running commands from random servers", self.debug)
-            nodes = self.ring.return_random_nodes(3)
-            for node in nodes: print(node)
+            nodes = self.ring.return_random_nodes(self.config.SCRIPT_MAX_DEFAULT)
+            for node in nodes:
+                node_host = self.ring.get_node_by_id(id=str(node),field="hostname")
+                debugMessage("Hostdata: " + node_host, self.debug)
+                self.shell.run_command(self.args[2], node_host)
 
         if (len(self.args) == 5) and (self.args[3] == self.config.JOINER_FROM) and (self.args[4] == self.config.ACTION_COUNTRIES):
             # run command from all the countries
