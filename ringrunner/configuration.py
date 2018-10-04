@@ -5,7 +5,8 @@ class CLIConfig():
 
         self.SCRIPT_MAX_DEFAULT = 3
         self.SCRIPT_SSH_OPTIONS = "-oStrictHostKeyChecking=no"
-        self.SCRIPT_DEBUG = True
+        self.SCRIPT_DEBUG = False  # print debug messages if True
+        self.SCRIPT_TESTMODE = False  # no ssh connections are made
 
         self.ACTION_RUN = "run"
         self.ACTION_LIST = "list"

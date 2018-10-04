@@ -4,6 +4,7 @@ import requests
 import json
 
 from .configuration import RingConfig
+from .configuration import CLIConfig
 from .helpers import *
 
 class RingCall():
@@ -12,6 +13,7 @@ class RingCall():
     def __init__(self):
 
         self.config = RingConfig()
+        self.cliconfig = CLIConfig()
         self.debug = False
 
 
@@ -79,9 +81,9 @@ class RingCall():
             for node in data['results']['nodes']:
                 data_by_field.append(node[field])
 
-            return data_by_field
+            return data_by_field, data
 
-    # provide you're own JSON
+
     def get_node_by_id(self, **kwargs):
 
         id = kwargs.get('id')
@@ -91,7 +93,7 @@ class RingCall():
         debugMessage("{id} {field} json?{jsonyes}".format(id=id, field=field, jsonyes=type(json)), self.debug)
 
         if not id:
-            return False
+            return False, None
 
         if id and not field:
             api_url = self.build_api_url(self.config.RING_GET_NODE_BY_ID,id=id)
@@ -106,26 +108,38 @@ class RingCall():
             if (data['info']['resultcount'] == 1) and (data['info']['success'] == 1):
                 for struct in data['results']['nodes']:
                     field_data = struct[field]
-                    return field_data
-            else: return False
+                    return field_data, data
+            else: return False, None
+
+    def return_printable_single_record_fields(self, **kwargs):
+
+        fields = kwargs.get('fields')
+        json = kwargs.get('json')
+
+        if not fields or not json:
+            return False
+
+        printable_output = []
+        for struct in json['results']['nodes']:
+            for field in fields:
+                printable_output.append(struct[field])
+
+        return(printable_output)
 
 
     def return_random_nodes(self, num=-1, **kwargs):
         # hit the api and ask for random servers. kwargs[country] will be the country code
-        #countrycode = kwargs.get('countrycode')
         if num == -1:
-            num = self.config.SCRIPT_MAX_DEFAULT
+            num = self.cliconfig.SCRIPT_MAX_DEFAULT
 
-        all_nodes = self._get_all_active_nodes(field='id')
+        all_nodes, json = self._get_all_active_nodes(field='id')
         chosen_nodes = []
-        print(num)
+
         for count in range(num):
             item = random.randint(0, (len(all_nodes)-1))
             chosen_nodes.append(all_nodes[item])
 
-        return chosen_nodes
-        #for node in nodes:
-        #    print("node", node)
+        return chosen_nodes, json
 
 
     def return_node_data(self, node_id, active_only=True):

@@ -14,7 +14,7 @@ class ShellEX():
 
         self.config = CLIConfig()
         self.debug = False
-
+        self.testmode = False
 
     def run_command (self, cmd, host, **kwargs):
 
@@ -23,13 +23,19 @@ class ShellEX():
 
         command = "ssh {options} {host} -- {command}; exit 0".format(options=self.config.SCRIPT_SSH_OPTIONS, host=host, command=cmd)
 
-        debugMessage(" Exec: {command}".format(command=command), self.debug)
+        debugMessage("Exec: {command}".format(command=command), self.debug)
 
-        try:
-            result = subprocess.check_output(command, shell=True, universal_newlines=True)
+        if not self.config.SCRIPT_TESTMODE:
+            try:
+                result = subprocess.check_output(command, shell=True, universal_newlines=True)
 
-        except subprocess.CalledProcessError:
-            print("An unknown error ooccurred when executing the command:", command)
-            sys.exit()
+            except subprocess.CalledProcessError:
+                debugMessage("subprocess.CalledProcessError -- ")
+                return False
 
-        print (result)
+            print (result)
+            return True
+
+        else:
+            debugMessage("==> Test mode configuration->testmode -- no SSH connections are made", self.debug)
+            return True
