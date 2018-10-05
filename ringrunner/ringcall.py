@@ -15,6 +15,8 @@ class RingCall():
         self.config = RingConfig()
         self.cliconfig = CLIConfig()
         self.debug = False
+        self.debug_query_count = False
+        self.query_count = 0
 
 
     def build_api_url(self, action, **kwargs):
@@ -61,6 +63,9 @@ class RingCall():
         except (urllib.error.HTTPError, urllib.error.URLError, ValueError):
             print ("do_api_call: Error getting data from the API URL.", url)
             sys.exit(1)
+
+        self.query_count += 1
+        debugMessage("Total number of API queries: {num_of_queries}".format(num_of_queries=self.query_count), self.debug_query_count)
 
         return json_struct
 
@@ -111,21 +116,39 @@ class RingCall():
                     return field_data, data
             else: return False, None
 
-    def return_printable_single_record_fields(self, **kwargs):
 
-        fields = kwargs.get('fields')
-        json = kwargs.get('json')
+    def return_node_per_country(self, **kwargs):
 
-        if not fields or not json:
-            return False
+        api_url = self.build_api_url(self.config.RING_GET_COUNTRY_CODES)
+        data = self.do_api_call(api_url)
 
-        printable_output = []
-        for struct in json['results']['nodes']:
-            for field in fields:
-                printable_output.append(struct[field])
+        data_countries = []
+        if (data['info']['success'] == 1):
+            for country in data['results']['countrycodes']:
+                data_countries.append(country)
+        else:
+            return False, []
 
-        return(printable_output)
+        chosen_nodes = []
 
+        print("We're gathering a list of nodes available in each country...")
+
+        for country in data_countries:
+            api_url = self.build_api_url(self.config.RING_GET_ACTIVE_NODES_BY_COUNTRY, countrycode=country)
+            country_data = self.do_api_call(api_url)
+
+            country_nodes = country_data['results']['nodes']
+            if len(country_nodes) != 0 and len(country_nodes) == 1:
+                for node in country_data['results']['nodes']:
+                    chosen_nodes.append(node['id'])
+            elif len(country_nodes) != 0:
+                country_node_list = []
+                for node in country_data['results']['nodes']:
+                    country_node_list.append(node['id'])
+                item = random.randint(0, (len(country_node_list)-1))
+                chosen_nodes.append(item)
+
+        return chosen_nodes
 
     def return_random_nodes(self, num=-1, **kwargs):
         # hit the api and ask for random servers. kwargs[country] will be the country code
@@ -139,7 +162,11 @@ class RingCall():
             item = random.randint(0, (len(all_nodes)-1))
             chosen_nodes.append(all_nodes[item])
 
-        return chosen_nodes, json
+        while len(set(chosen_nodes)) != num:
+            item = random.randint(0, (len(all_nodes)-1))
+            chosen_nodes.append(all_nodes[item])
+
+        return set(chosen_nodes), json
 
 
     def return_node_data(self, node_id, active_only=True):

@@ -99,7 +99,6 @@ class CLIValidate():
         # otherwise, if the fifth command is 'countries' then pass
         # otherwise, if the fifth command is 'nodes' then fail (there should be 6)
         if len(self.args) == 5:
-            print(self.args[4])
             if len(self.args[4]) == 2:
                 return True
             if self.args[4] == self.config.ACTION_COUNTRIES:

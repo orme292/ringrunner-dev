@@ -24,7 +24,6 @@ class CLIObject():
         self.shell = ShellEX()
         self.max = self.config.SCRIPT_MAX_DEFAULT
 
-
     def setDebugMode(self, value):
 
         if value != self.config.SCRIPT_DEBUG:
@@ -93,32 +92,28 @@ class CLIObject():
 
             for node in nodes:
                 node_host, json = self.ring.get_node_by_id(id=str(node), field="hostname")
-                node_particpant, json = self.ring.get_node_by_id(id=str(node), field="participant", json=json)
-                debugMessage("Hostdata: " + str(node_host) + " " + str(node_particpant), self.debug)
+
+                debugMessage("Hostdata: " + str(node_host), self.debug)
                 debugMessage("JSON: " + str(json), self.debug)
 
-                for struct in json['results']['nodes']:
-                    table_data_city = str(struct['city'])
-                    table_data_countrycode = str(struct['countrycode'])
-                    table_data_datacenter = str(struct['datacenter'])
-                    table_data_asn = str(struct['asn'])
-                    table_data_id = str(struct['id'])
-                    table_data_ipv4 = str(struct['ipv4'])
-                    table_data_ipv6 = str(struct['ipv6'])
-
-                Windows.enable(auto_colors=True, reset_atexit=True)
-                table_data = [
-                    [Color('{autogreen}'+str(node_host)+'{/autogreen}'), table_data_datacenter + " (ASN: " + table_data_asn + ")" ],
-                    [table_data_city + ", " + table_data_countrycode, table_data_ipv4 + " / " + table_data_ipv6]
-                ]
-                table_instance = SingleTable(table_data, "Node " + table_data_id)
-                print(table_instance.table)
+                table = self.__print_node_id_table(json=json)
 
                 self.shell.run_command(self.args[2], node_host)
 
         if (len(self.args) == 5) and (self.args[3] == self.config.JOINER_FROM) and (self.args[4] == self.config.ACTION_COUNTRIES):
             # run command from all the countries
             debugMessage("We're running commands from 1 node in each of the countries with active nodes", self.debug)
+
+            country_nodes = self.ring.return_node_per_country()
+
+            debugMessage("Total Nodes: " + str(len(country_nodes)), self.debug)
+
+            for node in country_nodes:
+                node_host, json = self.ring.get_node_by_id(id=str(node), field="hostname")
+
+                table = self.__print_node_id_table(json=json)
+
+                self.shell.run_command(self.args[2], node_host)
 
         if (len(self.args) == 5) and (len(self.args[4]) == 2):
             # run command from self.config.SCRIPT_MAX_DEFAULT nodes in country
@@ -153,3 +148,32 @@ class CLIObject():
     def _runCommand(self, nodes):
 
         print("runCommand")
+
+
+    def __print_node_id_table(self, **kwargs):
+
+        json = kwargs.get('json')
+
+        if not json:
+            return False
+
+        for struct in json['results']['nodes']:
+            table_data_host = str(struct['hostname'])
+            table_data_city = str(struct['city'])
+            table_data_countrycode = str(struct['countrycode'])
+            table_data_datacenter = str(struct['datacenter'])
+            table_data_asn = str(struct['asn'])
+            table_data_id = str(struct['id'])
+            table_data_ipv4 = str(struct['ipv4'])
+            table_data_ipv6 = str(struct['ipv6'])
+
+        table_data_url = self.ring.build_api_url(self.ring.config.RING_GET_NODE_BY_ID, id=table_data_id)
+
+        Windows.enable(auto_colors=True, reset_atexit=True)
+        table_data = [
+            [Color('{autogreen}'+str(table_data_host)+'{/autogreen}'), table_data_datacenter + " (ASN: " + table_data_asn + ")", table_data_city + ", " + table_data_countrycode ],
+            [table_data_ipv4, table_data_ipv6, Color('{autoblue}'+table_data_url+'{/autoblue}')]
+        ]
+        table_instance = SingleTable(table_data, "Node " + table_data_id)
+
+        print(table_instance.table)
