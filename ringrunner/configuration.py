@@ -4,9 +4,10 @@ class CLIConfig():
     def __init__(self):
 
         self.SCRIPT_MAX_DEFAULT = 3
-        self.SCRIPT_SSH_OPTIONS = "-oStrictHostKeyChecking=no"
+        self.SCRIPT_SSH_OPTIONS = "-q -oStrictHostKeyChecking=no"
         self.SCRIPT_DEBUG = False  # print debug messages if True
         self.SCRIPT_TESTMODE = False  # no ssh connections are made
+        self.SCRIPT_QUIET = False # no terminal tables display
 
         self.ACTION_RUN = "run"
         self.ACTION_LIST = "list"
@@ -29,6 +30,8 @@ class RingConfig():
 
     def __init__(self):
 
+        self.SCRIPT_DEBUG_QUERY = True
+        
         self.api_base = "https://api.ring.nlnog.net/1.0"
         self.api_country_codes = "/countries"
         self.api_nodes = "/nodes"

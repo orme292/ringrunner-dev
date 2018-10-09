@@ -1,7 +1,8 @@
+import json
 import urllib
 import random
 import requests
-import json
+import time
 
 from .configuration import RingConfig
 from .configuration import CLIConfig
@@ -15,7 +16,7 @@ class RingCall():
         self.config = RingConfig()
         self.cliconfig = CLIConfig()
         self.debug = False
-        self.debug_query_count = False
+        self.debug_query = self.config.SCRIPT_DEBUG_QUERY
         self.query_count = 0
 
 
@@ -65,7 +66,9 @@ class RingCall():
             sys.exit(1)
 
         self.query_count += 1
-        debugMessage("Total number of API queries: {num_of_queries}".format(num_of_queries=self.query_count), self.debug_query_count)
+        time.sleep(1)
+        debugMessage("Sleep.", self.debug_query)
+        debugMessage("Total number of API queries: {num_of_queries}".format(num_of_queries=self.query_count), self.debug_query)
 
         return json_struct
 
@@ -95,8 +98,6 @@ class RingCall():
         field = kwargs.get('field')
         json = kwargs.get('json')
 
-        debugMessage("{id} {field} json?{jsonyes}".format(id=id, field=field, jsonyes=type(json)), self.debug)
-
         if not id:
             return False, None
 
@@ -113,6 +114,7 @@ class RingCall():
             if (data['info']['resultcount'] == 1) and (data['info']['success'] == 1):
                 for struct in data['results']['nodes']:
                     field_data = struct[field]
+                    debugMessage("{id} {field} {fielddata} json?{jsonyes} ".format(id=id, field=field, fielddata=field_data, jsonyes=type(json)), self.debug)
                     return field_data, data
             else: return False, None
 
@@ -131,24 +133,65 @@ class RingCall():
 
         chosen_nodes = []
 
-        print("We're gathering a list of nodes available in each country...")
+        print(" We're gathering a list of nodes available in each country (this might take awhile)...")
 
         for country in data_countries:
             api_url = self.build_api_url(self.config.RING_GET_ACTIVE_NODES_BY_COUNTRY, countrycode=country)
-            country_data = self.do_api_call(api_url)
+            data = self.do_api_call(api_url)
 
-            country_nodes = country_data['results']['nodes']
+            country_nodes = data['results']['nodes']
             if len(country_nodes) != 0 and len(country_nodes) == 1:
-                for node in country_data['results']['nodes']:
+                for node in data['results']['nodes']:
                     chosen_nodes.append(node['id'])
             elif len(country_nodes) != 0:
                 country_node_list = []
-                for node in country_data['results']['nodes']:
+                for node in data['results']['nodes']:
                     country_node_list.append(node['id'])
                 item = random.randint(0, (len(country_node_list)-1))
-                chosen_nodes.append(item)
+                chosen_nodes.append(country_node_list[item])
 
         return chosen_nodes
+
+
+    def return_random_nodes_from_a_country(self, **kwargs):
+
+        countrycode = kwargs.get('countrycode')
+        num_nodes = kwargs.get('num')
+
+        if not countrycode:
+            return False
+        if not num_nodes:
+            num_nodes = self.cliconfig.SCRIPT_MAX_DEFAULT
+
+        is_country_valid = self.validateCountryCode(countrycode)
+
+        api_url = self.build_api_url(self.config.RING_GET_ACTIVE_NODES_BY_COUNTRY, countrycode=countrycode)
+        data = self.do_api_call(api_url)
+
+        chosen_nodes = []
+        if (data['info']['success'] != 1) or (data['info']['resultcount'] == 0):
+            return False, data
+
+        all_nodes_in_country = data['results']['nodes']
+
+        if num_nodes >= len(all_nodes_in_country):
+            for node in all_nodes_in_country:
+                chosen_nodes.append(node['id'])
+                print(node)
+
+        elif len(all_nodes_in_country) != 0:
+            node_list = []
+            for node in all_nodes_in_country:
+                node_list.append(node['id'])
+
+            while len(set(chosen_nodes)) < num_nodes:
+                item = random.randint(0, (len(all_nodes_in_country)-1))
+                chosen_nodes.append(node_list[item])
+
+        debugMessage("chosen_nodes: " + str(chosen_nodes), self.debug)
+        debugMessage("set chosen: " + str(set(chosen_nodes)), self.debug)
+        return set(chosen_nodes), data
+
 
     def return_random_nodes(self, num=-1, **kwargs):
         # hit the api and ask for random servers. kwargs[country] will be the country code
@@ -176,10 +219,11 @@ class RingCall():
 
     def validateCountryCode(self, code):
 
+        code = str(code)
         code = code.upper()
 
         if len(code) != 2:
-            quitMessage("Country Code should be two letters. See {api}{country}".format(api=self.config.api_base, country=self.config.api_country_codes))
+            return False
 
         api_url = self.build_api_url(self.config.RING_GET_COUNTRY_CODES)
         data = self.do_api_call(api_url)
@@ -188,5 +232,4 @@ class RingCall():
             if country == code:
                 return True
 
-        print("{code} is not a valid country code. See: {url}".format(code=code, url=self.build_api_url(self.config.RING_GET_COUNTRY_CODES)))
-        sys.exit(1)
+        return False
