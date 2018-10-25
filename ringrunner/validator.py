@@ -1,7 +1,3 @@
-'''
-This handles anything related to the NLNOG API -- including value validations, etc
-'''
-
 import sys
 
 from .configuration import CLIConfig

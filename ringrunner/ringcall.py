@@ -66,8 +66,8 @@ class RingCall():
             sys.exit(1)
 
         self.query_count += 1
+        debugMessage("API Sleep.", self.debug_query)
         time.sleep(1)
-        debugMessage("Sleep.", self.debug_query)
         debugMessage("Total number of API queries: {num_of_queries}".format(num_of_queries=self.query_count), self.debug_query)
 
         return json_struct
@@ -153,37 +153,39 @@ class RingCall():
         return chosen_nodes
 
 
-    def return_random_nodes_from_a_country(self, **kwargs):
+    def return_nodes_from_a_country(self, **kwargs):
 
         countrycode = kwargs.get('countrycode')
-        num_nodes = kwargs.get('num')
+        num_nodes = kwargs.get('num_nodes')
 
         if not countrycode:
-            return False
-        if not num_nodes:
-            num_nodes = self.cliconfig.SCRIPT_MAX_DEFAULT
+            return False, []
 
-        is_country_valid = self.validateCountryCode(countrycode)
+        if (not num_nodes) or (num_nodes == str(0)) or (num_nodes == 0):
+            num_nodes = self.cliconfig.SCRIPT_MAX_DEFAULT
+        elif num_nodes == self.cliconfig.ACTION_MAX:
+            num_nodes = 99
+
+        if not (self.validateCountryCode(countrycode)):
+            quitMessage("Invalid country code {code} or there are no active Ring Nodes.".format(code=(self.args[4]).upper()))
 
         api_url = self.build_api_url(self.config.RING_GET_ACTIVE_NODES_BY_COUNTRY, countrycode=countrycode)
         data = self.do_api_call(api_url)
 
-        chosen_nodes = []
         if (data['info']['success'] != 1) or (data['info']['resultcount'] == 0):
             return False, data
 
         all_nodes_in_country = data['results']['nodes']
 
+        chosen_nodes = []
         if num_nodes >= len(all_nodes_in_country):
             for node in all_nodes_in_country:
                 chosen_nodes.append(node['id'])
-                print(node)
 
-        elif len(all_nodes_in_country) != 0:
+        elif num_nodes < len(all_nodes_in_country):
             node_list = []
             for node in all_nodes_in_country:
                 node_list.append(node['id'])
-
             while len(set(chosen_nodes)) < num_nodes:
                 item = random.randint(0, (len(all_nodes_in_country)-1))
                 chosen_nodes.append(node_list[item])
@@ -230,6 +232,8 @@ class RingCall():
 
         for country in data['results']['countrycodes']:
             if country == code:
+                debugMessage("The country is {country} and it is validated.".format(country=code), self.debug)
                 return True
 
+        debugMessage("The country is {country} and it failed validation.".format(country=code), self.debug)
         return False

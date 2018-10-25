@@ -1,6 +1,6 @@
+from colorclass import Color, Windows
 from terminaltables import SingleTable
 from textwrap import wrap
-from colorclass import Color, Windows
 
 from .configuration import CLIConfig
 from .configuration import RingConfig
@@ -37,14 +37,14 @@ class CLIDisplay():
 
             Windows.enable(auto_colors=True, reset_atexit=True)
             table_data = [
-                [Color('{autogreen}'+str(table_data_host)+'{/autogreen}'),'', table_data_city + ", " + table_data_countrycode],
-                [table_data_ipv4, table_data_ipv6, Color('{autoblue}'+table_data_url+'{/autoblue}')]
+                [Color('{autogreen}'+str(table_data_host)+'{/autogreen}'),Color('{autoblue}'+table_data_url+'{/autoblue}') ],
+                [table_data_ipv4 + '\n' + table_data_ipv6, '' ]
             ]
-            table_instance = SingleTable(table_data, "Node " + table_data_id)
+            table_instance = SingleTable(table_data)
             column_max_width = table_instance.column_max_width(1)
-            table_dc_location = table_data_datacenter + " (ASN: " + table_data_asn + ")"
+            table_dc_location = table_data_datacenter + " (ASN: " + table_data_asn + ") " + table_data_city + ", " + table_data_countrycode
             table_dc_location = '\n'.join(wrap(table_dc_location, column_max_width))
-            table_instance.table_data[0][1] = table_dc_location
+            table_instance.table_data[1][1] = table_dc_location
 
             print(table_instance.table)
 
@@ -52,4 +52,4 @@ class CLIDisplay():
             line_title = Color('{green}' + table_data_host + '{/green}')
             api_url = self.ring.build_api_url(self.ringconfig.RING_GET_NODE_BY_ID, id=table_data_id)
             api_url = Color('{blue}'+api_url+'{/blue}')
-            print(" ### Node: " + line_title + " ASN " + table_data_asn + " " + table_data_city + " " + table_data_countrycode + " @ " + api_url)
+            print("Node: " + line_title + " ASN " + table_data_asn + " " + table_data_city + " " + table_data_countrycode + " @ " + api_url)

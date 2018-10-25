@@ -1,16 +1,16 @@
 #!/usr/local/bin/python3
-import sys
-import os
 import argparse
 import json
-import subprocess
+import os
 import random
+import subprocess
+import sys
 import urllib
 
 try:
+    from colorclass import Color, Windows
     import requests
     from terminaltables import SingleTable
-    from colorclass import Color, Windows
 
 except ImportError:
     print("Required modules aren't available -- colorclass, requests, terminaltables")

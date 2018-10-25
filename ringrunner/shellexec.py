@@ -1,8 +1,9 @@
 #!/usr/local/bin/python3
-import sys
 import os
 import subprocess
+import sys
 import urllib
+
 
 from .configuration import CLIConfig
 from .helpers import *
@@ -33,6 +34,7 @@ class ShellEX():
                 debugMessage("subprocess.CalledProcessError -- ")
                 return False
 
+            print ("# {node_command}".format(node_command=cmd))
             print (result)
             return True
 
