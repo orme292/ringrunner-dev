@@ -12,6 +12,5 @@ def debugMessage(erString, debugValue, doExit=False, exitCode=2):
 
 
 def displayMessage(msgString):
-
     print(" " + str(msgString))
     return True

@@ -40,7 +40,9 @@ class CLIValidate():
         # > ringrunner.py run command "dig mx google.com" from SG
         # > ringrunner.py run command "dig mx google.com" from nodes "451, 515, 526, 216"
         # > ringrunner.py run command "dig mx google.com" from SG max 5
-        # > ringrunner.py run command "dig txt apple.com" from countries
+        # > ringrunner.py run command "dig txt arstechnica.com" from countries
+        # > ringrunner.py run command "dig txt arstechnica.com" search "linode"
+        # > ringrunner.py run command "dig txt arstechnica.com" search "linode" from GB
 
         '''
         To avoid IndexError or KeyError  I use len(self.args)
@@ -71,10 +73,11 @@ class CLIValidate():
             return True
 
         # if there are at least 4 commands
-        # and the fourth is 'FROM' then pass
+        # if the fourth command is not either 'search' or 'from', then pass
         # Else, fail.
         if len(self.args) >= 4:
-            if self.args[3] != self.config.JOINER_FROM:
+            if ((self.args[3] != self.config.ACTION_SEARCH)
+            and (self.args[3] != self.config.JOINER_FROM)):
                 return False
 
         # if there aren't at least 5 commands, then fail
@@ -82,19 +85,24 @@ class CLIValidate():
             return False
 
         # if there are at least 5 commands
-        # and the fifth is not 'nodes' and not 'countries'
+        # if the fourth is not 'search'
+        # if the fifth is not 'nodes' and not 'countries'
         # then it should be a country code, so fail if not 2 letters in length
         if len(self.args) >= 5:
-            if self.args[4] != self.config.ACTION_NODES:
-                if self.args[4] != self.config.ACTION_COUNTRIES:
-                    if len(self.args[4]) != 2:
-                        return False
+            if self.args[3] != self.config.ACTION_SEARCH:
+                if self.args[4] != self.config.ACTION_NODES:
+                    if self.args[4] != self.config.ACTION_COUNTRIES:
+                        if len(self.args[4]) != 2:
+                            return False
 
         # if there are only 5 commands
-        # and the fifth is two letters long, then pass.
+        # ...and the fourth is 'search', then pass
+        # ...and the fifth is two letters long, then pass.
         # otherwise, if the fifth command is 'countries' then pass
         # otherwise, if the fifth command is 'nodes' then fail (there should be 6)
         if len(self.args) == 5:
+            if self.args[3] == self.config.ACTION_SEARCH:
+                return True
             if len(self.args[4]) == 2:
                 return True
             if self.args[4] == self.config.ACTION_COUNTRIES:
@@ -105,18 +113,35 @@ class CLIValidate():
         # if there are only 6 commands
         # and the fifth is 'nodes', then pass
         # otherwise, if the fifth is 'max', then fail because there should be 7
+        # if the fourth is 'search', then fail because there should be more
         if len(self.args) == 6:
             if self.args[5] == self.config.ACTION_NODES:
                 return True
             if self.args[5] == self.config.ACTION_MAX:
                 return False
+            if self.args[3] == self.config.ACTION_SEARCH:
+                return False
 
         # if there are 7 commands
+        # ... and if the fourth is 'search' then the sixth should be 'from'
+        # ... ... and then the seventh should be a country code (2 chars)
+        # and the sixth is 'from' and the seventh is 2 characters (country code), then pass
         # and the sixth is 'max' and the seventh is a number then pass
         if len(self.args) == 7:
+            if (self.args[3] == self.config.ACTION_SEARCH):
+                if ((self.args[5] == self.config.JOINER_FROM)
+                and (len(self.args[6]) == 2)):
+                    return True
+                else:
+                    return False
+            if (self.args[5] == self.config.JOINER_FROM) and (len(self.args[6]) == 2):
+                return True
             if self.args[5] == self.config.ACTION_MAX:
                 try: int(self.args[6])
                 except ValueError: return False
                 return True
 
+        if len(self.args) > 7:
+            return False
+            
         return True

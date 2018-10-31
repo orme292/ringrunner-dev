@@ -172,9 +172,18 @@ class CLIObject():
 
                 self.shell.run_command(self.args[2], node_host)
 
-        if (len(self.args) == 6 and (self.args[4] == self.config.ACTION_NODES)):
+        if ((len(self.args) == 6) and (self.args[3] == self.config.JOINER_FROM)
+        and (self.args[4] == self.config.ACTION_NODES)):
             # run command from the specified nodes
             debugMessage("We're running commands from the specified nodes", self.debug)
+
+            provided_nodes = self.args[5]
+            try:
+                nodes = []
+                ws_nodes = provided_nodes.split(',')
+                for node in ws_nodes:
+                    nodes.append(node.strip())
+
 
         debugMessage("End", self.debug)
         exit()

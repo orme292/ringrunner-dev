@@ -214,10 +214,29 @@ class RingCall():
         return set(chosen_nodes), json
 
 
-    def return_node_data(self, node_id, active_only=True):
-        # return data only if True
-        print("return_node_data")
+    def search_nodes(self, search_string, **kwargs):
 
+        countrycode = kwargs.get('countrycode')
+        num_nodes = kwargs.get('num_nodes')
+
+        if (not num_nodes) or (num_nodes == str(0)) or (num_nodes == 0):
+            num_nodes = self.cliconfig.SCRIPT_MAX_DEFAULT
+        elif num_nodes == self.cliconfig.ACTION_MAX:
+            num_nodes = 99
+
+        api_url = self.build_api_url(self.config.RING_GET_ALL_NODES)
+        data = self.do_api_call(api_url)
+
+        if (data['info']['success'] != 1) or (data['info']['resultcount'] == 0):
+            return False, data
+
+        all_nodes = data['results']['nodes']
+        for node in all_nodes:
+            for (key, value) in node.items():
+                if value.trim().lower() == search_string.trim().lower():
+                    print(key)
+                    print(value)
+                
 
     def validateCountryCode(self, code):
 
